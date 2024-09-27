@@ -28,28 +28,29 @@ class Board {
         return board[row][col] == EMPTY
     }
 
-    fun checkWin(): Char? {
+    fun checkWin(boardState: Array<CharArray>): Char? {
         // Check rows and columns
         for (i in 0 until BOARD_SIZE) {
-            if (board[i][0] == board[i][1] && board[i][1] == board[i][2] && board[i][0] != EMPTY) {
-                return board[i][0]
+            if (boardState[i][0] == boardState[i][1] && boardState[i][1] == boardState[i][2] && boardState[i][0] != EMPTY) {
+                return boardState[i][0]
             }
-            if (board[0][i] == board[1][i] && board[1][i] == board[2][i] && board[0][i] != EMPTY) {
-                return board[0][i]
+            if (boardState[0][i] == boardState[1][i] && boardState[1][i] == boardState[2][i] && boardState[0][i] != EMPTY) {
+                return boardState[0][i]
             }
         }
 
         // Check diagonals
-        if (board[0][0] == board[1][1] && board[1][1] == board[2][2] && board[0][0] != EMPTY) {
-            return board[0][0]
+        if (boardState[0][0] == boardState[1][1] && boardState[1][1] == boardState[2][2] && boardState[0][0] != EMPTY) {
+            return boardState[0][0]
         }
-        if (board[0][2] == board[1][1] && board[1][1] == board[2][0] && board[0][2] != EMPTY) {
-            return board[0][2]
+        if (boardState[0][2] == boardState[1][1] && boardState[1][1] == boardState[2][0] && boardState[0][2] != EMPTY) {
+            return boardState[0][2]
         }
 
         // No winner yet
         return null
     }
+
 
     fun isDraw(): Boolean {
         for (i in 0 until BOARD_SIZE) {
