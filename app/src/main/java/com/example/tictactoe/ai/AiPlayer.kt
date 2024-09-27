@@ -3,6 +3,10 @@ package com.example.tictactoe.ai
 import com.example.tictactoe.models.Board
 
 class AiPlayer {
+    companion object {
+        const val AI_MARKER = Board.PLAYER_O
+        const val PLAYER_MARKER = Board.PLAYER_X
+    }
 
     fun getMove(boardState: Array<CharArray>, difficulty: DifficultyLevel): Pair<Int, Int>? {
         return when (difficulty) {
@@ -18,7 +22,6 @@ class AiPlayer {
         }
     }
 
-    // Easy mode (random move)
     private fun getRandomMove(boardState: Array<CharArray>): Pair<Int, Int>? {
         val emptySpaces = mutableListOf<Pair<Int, Int>>()
         for (i in boardState.indices) {
@@ -35,83 +38,74 @@ class AiPlayer {
         }
     }
 
-    // Hard mode (optimal move using Alpha-Beta Pruning)
     private fun getOptimalMove(boardState: Array<CharArray>): Pair<Int, Int>? {
-        var bestMove: Pair<Int, Int>? = null
-        var bestScore = Int.MIN_VALUE
+        val bestMove = minimax(boardState, AI_MARKER, 0, Int.MIN_VALUE, Int.MAX_VALUE)
+        return if (bestMove.second != Pair(-1, -1)) bestMove.second else null // Ensure it returns null if no move is found
+    }
 
+    private fun minimax(boardState: Array<CharArray>, marker: Char, depth: Int, alpha: Int, beta: Int): Pair<Int, Pair<Int, Int>> {
+        val boardStateValue = evaluateBoard(boardState)
+        if (boardStateValue != 0 || isBoardFull(boardState)) {
+            return Pair(boardStateValue, Pair(-1, -1)) // Return score and invalid move
+        }
+
+        var bestMove = Pair(-1, -1)
+        var bestScore = if (marker == AI_MARKER) Int.MIN_VALUE else Int.MAX_VALUE
+        val emptySpaces = getLegalMoves(boardState)
+        var newAlpha = alpha
+        var newBeta = beta
+
+        for (move in emptySpaces) {
+            boardState[move.first][move.second] = marker // Make the move
+            val score = minimax(boardState, if (marker == AI_MARKER) PLAYER_MARKER else AI_MARKER, depth + 1, newAlpha, newBeta).first
+
+            // Undo move
+            boardState[move.first][move.second] = Board.EMPTY
+
+            if (marker == AI_MARKER) {
+                if (score > bestScore) {
+                    bestScore = score
+                    bestMove = move
+                }
+                newAlpha = maxOf(newAlpha, bestScore)
+            } else {
+                if (score < bestScore) {
+                    bestScore = score
+                    bestMove = move
+                }
+                newBeta = minOf(newBeta, bestScore)
+            }
+
+            // Alpha-beta pruning
+            if (newBeta <= newAlpha) {
+                break
+            }
+        }
+
+        return Pair(bestScore, bestMove)
+    }
+
+    private fun evaluateBoard(boardState: Array<CharArray>): Int {
+        val winner = checkWinner(boardState)
+        return when {
+            winner == AI_MARKER -> 10 // AI wins
+            winner == PLAYER_MARKER -> -10 // Player wins
+            else -> 0 // Draw or ongoing game
+        }
+    }
+
+    private fun getLegalMoves(boardState: Array<CharArray>): List<Pair<Int, Int>> {
+        val moves = mutableListOf<Pair<Int, Int>>()
         for (i in boardState.indices) {
             for (j in boardState[i].indices) {
                 if (boardState[i][j] == Board.EMPTY) {
-                    boardState[i][j] = Board.PLAYER_O
-                    val score = alphaBeta(boardState, 0, Int.MIN_VALUE, Int.MAX_VALUE, false)
-                    boardState[i][j] = Board.EMPTY
-
-                    if (score > bestScore) {
-                        bestScore = score
-                        bestMove = Pair(i, j)
-                    }
+                    moves.add(Pair(i, j))
                 }
             }
         }
-        return bestMove
+        return moves
     }
 
-    // Alpha-Beta Pruning algorithm (fail-hard version)
-    private fun alphaBeta(boardState: Array<CharArray>, depth: Int, alpha: Int, beta: Int, isMaximizing: Boolean): Int {
-        var alphaVar = alpha
-        var betaVar = beta
-        val winner = checkWinner(boardState)
-
-        // Terminal condition: return the heuristic value of the board
-        if (winner == Board.PLAYER_X) return -10 + depth
-        if (winner == Board.PLAYER_O) return 10 - depth
-        if (isBoardFull(boardState)) return 0
-
-        return if (isMaximizing) {
-            var bestScore = Int.MIN_VALUE
-
-            // Maximizing player (AI with 'O')
-            for (i in boardState.indices) {
-                for (j in boardState[i].indices) {
-                    if (boardState[i][j] == Board.EMPTY) {
-                        boardState[i][j] = Board.PLAYER_O
-                        val score = alphaBeta(boardState, depth + 1, alphaVar, betaVar, false)
-                        boardState[i][j] = Board.EMPTY
-                        bestScore = maxOf(bestScore, score)
-                        alphaVar = maxOf(alphaVar, bestScore)
-
-                        if (betaVar <= alphaVar) {
-                            break // Beta cutoff
-                        }
-                    }
-                }
-            }
-            bestScore
-        } else {
-            var bestScore = Int.MAX_VALUE
-
-            // Minimizing player (Human with 'X')
-            for (i in boardState.indices) {
-                for (j in boardState[i].indices) {
-                    if (boardState[i][j] == Board.EMPTY) {
-                        boardState[i][j] = Board.PLAYER_X
-                        val score = alphaBeta(boardState, depth + 1, alphaVar, betaVar, true)
-                        boardState[i][j] = Board.EMPTY
-                        bestScore = minOf(bestScore, score)
-                        betaVar = minOf(betaVar, bestScore)
-
-                        if (betaVar <= alphaVar) {
-                            break // Alpha cutoff
-                        }
-                    }
-                }
-            }
-            bestScore
-        }
-    }
-
-    // Check if the board is full
     private fun isBoardFull(boardState: Array<CharArray>): Boolean {
         for (row in boardState) {
             for (cell in row) {
@@ -123,9 +117,7 @@ class AiPlayer {
         return true
     }
 
-    // Check the winner on the current board
     private fun checkWinner(boardState: Array<CharArray>): Char? {
-        val board = Board()
-        return board.checkWin()
+        return Board().checkWin(boardState)
     }
 }
