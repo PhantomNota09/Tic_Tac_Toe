@@ -33,10 +33,17 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
+    sourceSets {
+        getByName("main") {
+            kotlin.srcDir("src/main/kotlin")
+            java.srcDir("src/main/java")
+        }
+    }
 }
 
 dependencies {
-
+    implementation("org.jetbrains.kotlin:kotlin-stdlib")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
