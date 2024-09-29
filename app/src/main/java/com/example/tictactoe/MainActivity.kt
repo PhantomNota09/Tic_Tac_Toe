@@ -5,10 +5,12 @@ import android.os.Handler
 import android.os.Looper
 import android.widget.Button
 import android.widget.TextView
+import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import com.example.tictactoe.ai.AiPlayer
 import com.example.tictactoe.ai.DifficultyLevel
 import com.example.tictactoe.models.Board
+import com.example.tictactoe.ui.GameUI
 
 class MainActivity : AppCompatActivity() {
 
@@ -21,22 +23,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        boardButtons = arrayOf(
-            arrayOf(findViewById(R.id.btn00), findViewById(R.id.btn01), findViewById(R.id.btn02)),
-            arrayOf(findViewById(R.id.btn10), findViewById(R.id.btn11), findViewById(R.id.btn12)),
-            arrayOf(findViewById(R.id.btn20), findViewById(R.id.btn21), findViewById(R.id.btn22))
-        )
-
-        statusText = findViewById(R.id.statusText)
-
-        for (i in boardButtons.indices) {
-            for (j in boardButtons[i].indices) {
-                boardButtons[i][j].setOnClickListener {
-                    onHumanMove(i, j)
-                }
-            }
+        setContent {
+            GameUI()
         }
     }
 
