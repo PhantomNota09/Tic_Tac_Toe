@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">TicTacToe</string>
+    <string name="difficulty">Difficulty</string>
+    <string name="easy">Easy</string>
+    <string name="medium">Medium</string>
+    <string name="hard">Hard</string>
+    <string name="save">Save</string>
+    <string name="game_history">Game History</string>
 </resources>
