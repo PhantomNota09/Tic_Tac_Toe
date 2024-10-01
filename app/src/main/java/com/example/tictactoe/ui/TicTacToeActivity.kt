@@ -44,7 +44,7 @@ class TicTacToeActivity : AppCompatActivity() {
     private fun displayGameResults() {
         val gameResults = dbHelper.getAllGameResults()
         for (result in gameResults) {
-            Log.d("TicTacToe", "Date: ${result.date}, Winner: ${result.winner}, Difficulty: ${result.difficulty}")
+            Log.d("TicTacToeActivity", "Date: ${result.date}, Winner: ${result.winner}, Difficulty: ${result.difficulty}")
         }
     }
 }
