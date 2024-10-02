@@ -60,9 +60,10 @@ fun HomeUI(navController: NavController, viewModel: GameViewModel) {
                 Text("Difficulty: $difficulty")
             }
 
+            // PastGames button
             Button(
                 onClick = {
-                    // navController.navigate("pastGames") if you have a past games screen setup
+                    navController.navigate("pastGames")
                 },
                 modifier = Modifier
                     .fillMaxWidth()
