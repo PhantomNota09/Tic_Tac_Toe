@@ -43,4 +43,9 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+//    SQLite dependencies
+    implementation(libs.androidx.sqlite.ktx)
+    implementation(libs.androidx.sqlite.framework)
+
 }
