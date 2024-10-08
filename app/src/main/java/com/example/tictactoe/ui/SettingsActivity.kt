@@ -14,10 +14,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.tictactoe.viewmodel.GameViewModel
 
 @Composable
-fun SettingsPage(viewModel: GameViewModel, onDifficultySelected: (String) -> Unit) {
+fun SettingsPage(viewModel: GameViewModel, navController: NavController, onDifficultySelected: (String) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -29,6 +30,7 @@ fun SettingsPage(viewModel: GameViewModel, onDifficultySelected: (String) -> Uni
         DifficultyButton("Easy", onClick = {
             viewModel.setDifficulty("Easy")
             onDifficultySelected("Easy")
+            navController.navigateUp()
         })
         Spacer(modifier = Modifier.height(16.dp)) // Spacing between buttons
 
