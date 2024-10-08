@@ -17,10 +17,12 @@ import androidx.navigation.navArgument
 import com.example.tictactoe.ai.AiPlayer
 import com.example.tictactoe.ai.DifficultyLevel
 import com.example.tictactoe.models.Board
+import com.example.tictactoe.ui.Game
 import com.example.tictactoe.ui.GameUI
 import com.example.tictactoe.ui.HomeUI
 import com.example.tictactoe.ui.SettingsPage
 import com.example.tictactoe.viewmodel.GameViewModel
+import com.example.tictactoe.ui.PastGamesActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -41,7 +43,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onHumanMove(row: Int, col: Int) {
-        if (currentPlayer != Board.PLAYER_X || !gameManager.makeMove(row, col, Board.PLAYER_X)) {
+        if (currentPlayer != Board.PLAYER_X || !gameManager.makeMove(
+                row,
+                col,
+                Board.PLAYER_X
+            )
+        ) {
             return
         }
 
@@ -103,8 +110,20 @@ fun MainApp(gameViewModel: GameViewModel) {
         composable("gameUI") {
             GameUI(gameViewModel, navController)
         }
-        composable("settings/{returnDestination}", arguments = listOf(navArgument("returnDestination") { type = NavType.StringType })) { backStackEntry ->
-            val returnDestination = backStackEntry.arguments?.getString("returnDestination") ?: "homeUI"
+        composable("pastGames") {
+            val gamesList = listOf(
+                Game("2024-01-01", "Human", "Hard"),
+                Game("2024-01-02", "Computer", "Medium"),
+                Game("2024-01-03", "Human", "Easy")
+            )
+            PastGamesActivity(gamesList)
+        }
+        composable(
+            "settings/{returnDestination}",
+            arguments = listOf(navArgument("returnDestination") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val returnDestination =
+                backStackEntry.arguments?.getString("returnDestination") ?: "homeUI"
             SettingsPage(
                 viewModel = gameViewModel,
                 navController = navController,
