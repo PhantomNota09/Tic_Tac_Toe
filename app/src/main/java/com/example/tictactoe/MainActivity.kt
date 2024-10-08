@@ -9,12 +9,15 @@ import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.tictactoe.ai.AiPlayer
 import com.example.tictactoe.ai.DifficultyLevel
 import com.example.tictactoe.models.Board
+import com.example.tictactoe.ui.GameUI
 import com.example.tictactoe.ui.HomeUI
 import com.example.tictactoe.ui.SettingsPage
 import com.example.tictactoe.viewmodel.GameViewModel
@@ -88,26 +91,33 @@ class MainActivity : AppCompatActivity() {
 
 @Composable
 fun MainApp(gameViewModel: GameViewModel) {
-    val navController =
-        rememberNavController()  // Navigation controller to manage navigation events
+    val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "gameUI") {
-        composable("gameUI") {
+    NavHost(navController = navController, startDestination = "homeUI") {
+        composable("homeUI") {
             HomeUI(
-                viewModel = gameViewModel,
-                onNavigateToSettings = { navController.navigate("settings") }
+                navController = navController,
+                viewModel = gameViewModel
             )
         }
-        composable("settings") {
-            // Pass navController to SettingsPage
+        composable("gameUI") {
+            GameUI(gameViewModel, navController)
+        }
+        composable("settings/{returnDestination}", arguments = listOf(navArgument("returnDestination") { type = NavType.StringType })) { backStackEntry ->
+            val returnDestination = backStackEntry.arguments?.getString("returnDestination") ?: "homeUI"
             SettingsPage(
                 viewModel = gameViewModel,
-                navController = navController, // Pass the NavController here
+                navController = navController,
+                returnDestination = returnDestination,
                 onDifficultySelected = { difficulty ->
                     gameViewModel.setDifficulty(difficulty)
-                    navController.navigateUp()  // Navigate back after setting difficulty
+                    navController.navigate(returnDestination) {
+                        popUpTo(returnDestination) { inclusive = true }
+                    }
                 }
             )
         }
     }
 }
+
+
