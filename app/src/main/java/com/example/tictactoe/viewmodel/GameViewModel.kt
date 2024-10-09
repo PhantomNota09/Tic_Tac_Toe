@@ -18,6 +18,7 @@ class GameViewModel : ViewModel() {
     val gameOver = _gameOver.asStateFlow()
 
 
+    // Initialize _gameBoard as an Array of CharArray
     private val _gameBoard = MutableStateFlow(
         arrayOf(
             charArrayOf(' ', ' ', ' '),
@@ -96,5 +97,4 @@ class GameViewModel : ViewModel() {
 
         return Pair(false, null)
     }
-
 }
