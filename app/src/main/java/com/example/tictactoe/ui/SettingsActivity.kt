@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.tictactoe.ai.DifficultyLevel
 import com.example.tictactoe.viewmodel.GameViewModel
 
 @Composable
@@ -22,7 +23,7 @@ fun SettingsPage(
     viewModel: GameViewModel,
     navController: NavController,
     returnDestination: String,
-    onDifficultySelected: (String) -> Unit
+    onDifficultySelected: (DifficultyLevel) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -33,8 +34,8 @@ fun SettingsPage(
     ) {
         // Easy
         DifficultyButton("Easy", onClick = {
-            viewModel.setDifficulty("Easy")
-            onDifficultySelected("Easy")
+            viewModel.setDifficulty(DifficultyLevel.EASY)
+            onDifficultySelected(DifficultyLevel.EASY)
             navController.navigate(returnDestination) {
                 popUpTo(returnDestination) { inclusive = true }
             }
@@ -43,8 +44,8 @@ fun SettingsPage(
 
         // Medium
         DifficultyButton("Medium", onClick = {
-            viewModel.setDifficulty("Medium")
-            onDifficultySelected("Medium")
+            viewModel.setDifficulty(DifficultyLevel.MEDIUM)
+            onDifficultySelected(DifficultyLevel.MEDIUM)
             navController.navigate(returnDestination) {
                 popUpTo(returnDestination) { inclusive = true }
             }
@@ -53,8 +54,8 @@ fun SettingsPage(
 
         // Hard
         DifficultyButton("Hard", onClick = {
-            viewModel.setDifficulty("Hard")
-            onDifficultySelected("Hard")
+            viewModel.setDifficulty(DifficultyLevel.HARD)
+            onDifficultySelected(DifficultyLevel.HARD)
             navController.navigate(returnDestination) {
                 popUpTo(returnDestination) { inclusive = true }
             }

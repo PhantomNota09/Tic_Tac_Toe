@@ -3,10 +3,12 @@ package com.example.tictactoe.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -29,8 +31,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import com.example.tictactoe.viewmodel.GameViewModel
 
@@ -39,6 +43,7 @@ fun GameUI(viewModel: GameViewModel, navController: NavController) {
     val gameBoard by viewModel.gameBoard.collectAsState()  // gameBoard state
     val currentPlayer by viewModel.currentPlayer.collectAsState()  // currentPlayer state
     val difficulty by viewModel.difficulty.collectAsState()  // difficulty state
+    val gameOverInfo by viewModel.gameOver.collectAsState() // gameOver state
 
 
     Column(
@@ -49,6 +54,38 @@ fun GameUI(viewModel: GameViewModel, navController: NavController) {
 //        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        gameOverInfo?.let {
+            if (it.first) { // Game over
+                Dialog(onDismissRequest = {  }) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        val gameResultText = when (it.second) { // Check how the game ended
+                            'X' -> "YOU WON!"
+                            'O' -> "YOU LOST"
+                            'D' -> "DRAW!"
+                            else -> "GAME OVER"
+                        }
+                        Text(
+                            text = gameResultText,
+                            fontSize = 48.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = Color.White
+                        )
+                        Spacer(modifier = Modifier.height(20.dp))
+                        Button(onClick = { viewModel.resetGame() }) {
+                            Text("Restart Game")
+                        }
+                        Button(onClick = { navController.popBackStack() }) {
+                            Text("Back to Menu")
+                        }
+                    }
+                }
+            }
+        }
+
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -102,7 +139,7 @@ fun GameUI(viewModel: GameViewModel, navController: NavController) {
             Row {
                 row.forEachIndexed { colIndex, value ->
                     BoxCell(value, rowIndex, colIndex) {
-                        if (value.isEmpty()) {
+                        if (value == ' ') {
                             viewModel.makeMove(rowIndex, colIndex)
                         }
                     }
@@ -114,7 +151,7 @@ fun GameUI(viewModel: GameViewModel, navController: NavController) {
 
 
 @Composable
-fun BoxCell(value: String, row: Int, col: Int, onClick: () -> Unit) {
+fun BoxCell(value: Char, row: Int, col: Int, onClick: () -> Unit) {
     val borderWidth = 2.dp
     val borderColor = Color.Black
 
@@ -122,22 +159,24 @@ fun BoxCell(value: String, row: Int, col: Int, onClick: () -> Unit) {
         .size(100.dp)
         .background(MaterialTheme.colorScheme.surface)
         .border(borderWidth, borderColor)
-        .clickable(onClick = onClick, indication = ripple(),
-            interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() })
+        .clickable(
+            onClick = { if (value == ' ') onClick() },
+            indication = ripple(),
+            interactionSource = remember { MutableInteractionSource() }
+        )
 
     Box(
         contentAlignment = Alignment.Center, modifier = cellModifier
     ) {
         Text(
-            text = value,
+            text = value.toString(),
             fontSize = 48.sp,
             style = MaterialTheme.typography.bodyLarge,
             color = when (value) {
-                "X" -> Color.Blue
-                "O" -> Color.Red
+                'X' -> Color.Blue
+                'O' -> Color.Red
                 else -> Color.Transparent
             }
         )
     }
 }
-
