@@ -56,15 +56,21 @@ fun GameUI(viewModel: GameViewModel, navController: NavController) {
     ) {
         gameOverInfo?.let {
             if (it.first) { // Game over
-                Dialog(onDismissRequest = { /* Handle dialog dismissal if necessary */ }) {
+                Dialog(onDismissRequest = {  }) {
                     Column(
                         modifier = Modifier.padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
+                        val gameResultText = when (it.second) { // Check how the game ended
+                            'X' -> "YOU WON!"
+                            'O' -> "YOU LOST"
+                            'D' -> "DRAW!"
+                            else -> "GAME OVER"
+                        }
                         Text(
-                            text = if (it.second == 'X') "YOU WON!" else "YOU LOST",
-                            fontSize = 48.sp,  // Increased font size
-                            fontWeight = FontWeight.ExtraBold,  // Added boldness
+                            text = gameResultText,
+                            fontSize = 48.sp,
+                            fontWeight = FontWeight.ExtraBold,
                             color = Color.White
                         )
                         Spacer(modifier = Modifier.height(20.dp))
@@ -78,6 +84,7 @@ fun GameUI(viewModel: GameViewModel, navController: NavController) {
                 }
             }
         }
+
 
         Row(
             modifier = Modifier
@@ -173,5 +180,3 @@ fun BoxCell(value: Char, row: Int, col: Int, onClick: () -> Unit) {
         )
     }
 }
-
-

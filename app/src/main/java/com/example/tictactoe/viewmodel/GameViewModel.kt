@@ -17,7 +17,7 @@ class GameViewModel : ViewModel() {
     private val _gameOver = MutableStateFlow<Pair<Boolean, Char>?>(null)
     val gameOver = _gameOver.asStateFlow()
 
-    // Initialize _gameBoard as an Array of CharArray
+
     private val _gameBoard = MutableStateFlow(
         arrayOf(
             charArrayOf(' ', ' ', ' '),
@@ -46,8 +46,10 @@ class GameViewModel : ViewModel() {
             val updatedBoard = _gameBoard.value.map { it.copyOf() }.toTypedArray()
             updatedBoard[row][col] = _currentPlayer.value[0]
             _gameBoard.value = updatedBoard
-            if (checkWin()) {
-                _gameOver.value = Pair(true, _currentPlayer.value[0])
+
+            val (isGameOver, winner) = checkWin()
+            if (isGameOver) {
+                _gameOver.value = Pair(true, winner ?: 'D')
             } else {
                 togglePlayer()
             }
@@ -68,28 +70,31 @@ class GameViewModel : ViewModel() {
         }
     }
 
-    private fun checkWin(): Boolean {
+    private fun checkWin(): Pair<Boolean, Char?> {
         val board = _gameBoard.value
 
-        // Check rows and columns for a win
         for (i in 0 until 3) {
             if (board[i][0] != ' ' && board[i][0] == board[i][1] && board[i][1] == board[i][2]) {
-                return true
+                return Pair(true, board[i][0])
             }
             if (board[0][i] != ' ' && board[0][i] == board[1][i] && board[1][i] == board[2][i]) {
-                return true
+                return Pair(true, board[0][i])
             }
         }
 
-        // Check diagonals for a win
         if (board[0][0] != ' ' && board[0][0] == board[1][1] && board[1][1] == board[2][2]) {
-            return true
+            return Pair(true, board[0][0])
         }
         if (board[0][2] != ' ' && board[0][2] == board[1][1] && board[1][1] == board[2][0]) {
-            return true
+            return Pair(true, board[0][2])
         }
 
-        return false
+        val isDraw = board.all { row -> row.none { cell -> cell == ' ' } }
+        if (isDraw) {
+            return Pair(true, null)
+        }
+
+        return Pair(false, null)
     }
 
 }
