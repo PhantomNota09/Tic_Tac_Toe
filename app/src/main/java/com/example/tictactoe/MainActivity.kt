@@ -5,10 +5,24 @@ import android.os.Handler
 import android.os.Looper
 import android.widget.Button
 import android.widget.TextView
+import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.Composable
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.tictactoe.ai.AiPlayer
 import com.example.tictactoe.ai.DifficultyLevel
 import com.example.tictactoe.models.Board
+import com.example.tictactoe.ui.Game
+import com.example.tictactoe.ui.GameUI
+import com.example.tictactoe.ui.HomeUI
+import com.example.tictactoe.ui.SettingsPage
+import com.example.tictactoe.viewmodel.GameViewModel
+import com.example.tictactoe.ui.PastGamesActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -21,27 +35,20 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        boardButtons = arrayOf(
-            arrayOf(findViewById(R.id.btn00), findViewById(R.id.btn01), findViewById(R.id.btn02)),
-            arrayOf(findViewById(R.id.btn10), findViewById(R.id.btn11), findViewById(R.id.btn12)),
-            arrayOf(findViewById(R.id.btn20), findViewById(R.id.btn21), findViewById(R.id.btn22))
-        )
-
-        statusText = findViewById(R.id.statusText)
-
-        for (i in boardButtons.indices) {
-            for (j in boardButtons[i].indices) {
-                boardButtons[i][j].setOnClickListener {
-                    onHumanMove(i, j)
-                }
-            }
+        // Obtain the ViewModel
+        val viewModel = ViewModelProvider(this)[GameViewModel::class.java]
+        setContent {
+            MainApp(viewModel)
         }
     }
 
     private fun onHumanMove(row: Int, col: Int) {
-        if (currentPlayer != Board.PLAYER_X || !gameManager.makeMove(row, col, Board.PLAYER_X)) {
+        if (currentPlayer != Board.PLAYER_X || !gameManager.makeMove(
+                row,
+                col,
+                Board.PLAYER_X
+            )
+        ) {
             return
         }
 
@@ -88,3 +95,48 @@ class MainActivity : AppCompatActivity() {
         }, 2000)
     }
 }
+
+@Composable
+fun MainApp(gameViewModel: GameViewModel) {
+    val navController = rememberNavController()
+
+    NavHost(navController = navController, startDestination = "homeUI") {
+        composable("homeUI") {
+            HomeUI(
+                navController = navController,
+                viewModel = gameViewModel
+            )
+        }
+        composable("gameUI") {
+            GameUI(gameViewModel, navController)
+        }
+        composable("pastGames") {
+            val gamesList = listOf(
+                Game("2024-01-01", "Human", "Hard"),
+                Game("2024-01-02", "Computer", "Medium"),
+                Game("2024-01-03", "Human", "Easy")
+            )
+            PastGamesActivity(gamesList)
+        }
+        composable(
+            "settings/{returnDestination}",
+            arguments = listOf(navArgument("returnDestination") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val returnDestination =
+                backStackEntry.arguments?.getString("returnDestination") ?: "homeUI"
+            SettingsPage(
+                viewModel = gameViewModel,
+                navController = navController,
+                returnDestination = returnDestination,
+                onDifficultySelected = { difficulty ->
+                    gameViewModel.setDifficulty(difficulty)
+                    navController.navigate(returnDestination) {
+                        popUpTo(returnDestination) { inclusive = true }
+                    }
+                }
+            )
+        }
+    }
+}
+
+
