@@ -3,6 +3,7 @@ package com.example.tictactoe.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -102,7 +103,7 @@ fun GameUI(viewModel: GameViewModel, navController: NavController) {
             Row {
                 row.forEachIndexed { colIndex, value ->
                     BoxCell(value, rowIndex, colIndex) {
-                        if (value.isEmpty()) {
+                        if (value == ' ') {
                             viewModel.makeMove(rowIndex, colIndex)
                         }
                     }
@@ -114,7 +115,7 @@ fun GameUI(viewModel: GameViewModel, navController: NavController) {
 
 
 @Composable
-fun BoxCell(value: String, row: Int, col: Int, onClick: () -> Unit) {
+fun BoxCell(value: Char, row: Int, col: Int, onClick: () -> Unit) {
     val borderWidth = 2.dp
     val borderColor = Color.Black
 
@@ -122,22 +123,26 @@ fun BoxCell(value: String, row: Int, col: Int, onClick: () -> Unit) {
         .size(100.dp)
         .background(MaterialTheme.colorScheme.surface)
         .border(borderWidth, borderColor)
-        .clickable(onClick = onClick, indication = ripple(),
-            interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() })
+        .clickable(
+            onClick = { if (value == ' ') onClick() },
+            indication = ripple(),
+            interactionSource = remember { MutableInteractionSource() }
+        )
 
     Box(
         contentAlignment = Alignment.Center, modifier = cellModifier
     ) {
         Text(
-            text = value,
+            text = value.toString(),
             fontSize = 48.sp,
             style = MaterialTheme.typography.bodyLarge,
             color = when (value) {
-                "X" -> Color.Blue
-                "O" -> Color.Red
+                'X' -> Color.Blue
+                'O' -> Color.Red
                 else -> Color.Transparent
             }
         )
     }
 }
+
 
