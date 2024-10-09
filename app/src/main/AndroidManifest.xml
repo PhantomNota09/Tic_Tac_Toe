@@ -13,16 +13,6 @@
         android:theme="@style/Theme.TicTacToe"
         tools:targetApi="31">
 
-<!--TODO This is a test code to be deleted at last. This is just to test the dB-->
-        <activity
-            android:name=".ui.TicTacToeActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
     </application>
 
 </manifest>
