@@ -67,4 +67,9 @@ dependencies {
     implementation(libs.androidx.compose.material)
 
     implementation(libs.androidx.activity.compose)
+
+//    SQLite dependencies
+    implementation(libs.androidx.sqlite.ktx)
+    implementation(libs.androidx.sqlite.framework)
+
 }
