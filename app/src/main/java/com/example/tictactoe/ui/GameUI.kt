@@ -19,7 +19,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -50,7 +49,7 @@ fun GameUI(viewModel: GameViewModel, navController: NavController, context: Cont
     val difficulty by viewModel.difficulty.collectAsState()  // difficulty state
     val gameOverInfo by viewModel.gameOver.collectAsState() // gameOver state
     val dbHelper: TicTacToeDbHelper = TicTacToeDbHelper(context)
-
+    val gameMode by viewModel.gameMode.collectAsState() // gameMode state
 
     Column(
         modifier = Modifier
@@ -67,11 +66,21 @@ fun GameUI(viewModel: GameViewModel, navController: NavController, context: Cont
                         modifier = Modifier.padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        val gameResultText = when (it.second) {
-                            'X' -> "YOU WON!"
-                            'O' -> "YOU LOST"
-                            'D' -> "DRAW!"
-                            else -> "GAME OVER"
+                        // Display appropriate message based on game mode
+                        val gameResultText = if (gameMode == GameMode.VS_HUMAN) {
+                            when (it.second) {  // Check who won or if it's a draw
+                                'X' -> "X Won!"
+                                'O' -> "O Won!"
+                                'D' -> "It's a Draw!"
+                                else -> "Game Over"
+                            }
+                        } else {  // VS_AI mode
+                            when (it.second) {
+                                'X' -> "YOU WON!"
+                                'O' -> "YOU LOST"
+                                'D' -> "It's a Draw!"
+                                else -> "Game Over"
+                            }
                         }
                         val currentDate =
                             SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(
@@ -106,7 +115,6 @@ fun GameUI(viewModel: GameViewModel, navController: NavController, context: Cont
             }
         }
 
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -135,24 +143,20 @@ fun GameUI(viewModel: GameViewModel, navController: NavController, context: Cont
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 16.dp, end = 16.dp, bottom = 40.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.Center
         ) {
-            Button(
-                onClick = { },
-                elevation = null,
-                colors = ButtonDefaults.buttonColors(
-                    contentColor = Color.White,
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
-                    .height(60.dp)
-            ) {
-                Text(
-                    text = "Difficulty: $difficulty",
-                    style = MaterialTheme.typography.bodyLarge
-                )
+            // Display game mode and difficulty label
+            val gameModeLabel = when (gameMode) {
+                GameMode.VS_AI -> "Vs AI : $difficulty"
+                GameMode.VS_HUMAN -> "Vs Human"
+                GameMode.MULTIPLAYER -> "Multiplayer"
             }
+
+            Text(
+                text = gameModeLabel,
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.White
+            )
         }
 
         // Game board

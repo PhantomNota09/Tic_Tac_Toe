@@ -3,12 +3,16 @@ package com.example.tictactoe.viewmodel
 import androidx.lifecycle.ViewModel
 import com.example.tictactoe.ai.AiPlayer
 import com.example.tictactoe.ai.DifficultyLevel
+import com.example.tictactoe.ui.GameMode
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class GameViewModel : ViewModel() {
     private val _difficulty = MutableStateFlow(DifficultyLevel.EASY) // Set default difficulty as enum
     val difficulty = _difficulty.asStateFlow()
+
+    private val _gameMode = MutableStateFlow(GameMode.VS_HUMAN) // Default game mode
+    val gameMode = _gameMode.asStateFlow()
 
     private val aiPlayer = AiPlayer()
     private val _currentPlayer = MutableStateFlow("X")
@@ -30,6 +34,10 @@ class GameViewModel : ViewModel() {
 
     fun setDifficulty(newDifficulty: DifficultyLevel) {
         _difficulty.value = newDifficulty
+    }
+
+    fun setGameMode(newGameMode: GameMode) {
+        _gameMode.value = newGameMode
     }
 
     fun resetGame() {
@@ -59,7 +67,7 @@ class GameViewModel : ViewModel() {
 
     private fun togglePlayer() {
         _currentPlayer.value = if (_currentPlayer.value == "X") "O" else "X"
-        if (_currentPlayer.value == "O") {
+        if (_currentPlayer.value == "O" && _gameMode.value == GameMode.VS_AI) {
             performAiMove()
         }
     }
@@ -98,3 +106,4 @@ class GameViewModel : ViewModel() {
         return Pair(false, null)
     }
 }
+

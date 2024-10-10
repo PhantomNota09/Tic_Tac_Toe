@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -23,6 +24,7 @@ import com.example.tictactoe.viewmodel.GameViewModel
 @Composable
 fun HomeUI(navController: NavController, viewModel: GameViewModel) {
     val difficulty by viewModel.difficulty.collectAsState() // difficulty state
+    val gameMode by viewModel.gameMode.collectAsState() // gameMode state
 
     Box(
         modifier = Modifier
@@ -32,12 +34,18 @@ fun HomeUI(navController: NavController, viewModel: GameViewModel) {
     ) {
         Column(
             modifier = Modifier.align(Alignment.Center),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally // Center the content horizontally
         ) {
+            // Button to start game based on gameMode
             Button(
                 onClick = {
                     viewModel.resetGame() // reset gameBoard and currentPlayer
-                    navController.navigate("gameUI")
+                    when (gameMode) {
+                        GameMode.MULTIPLAYER -> navController.navigate("bluetoothUI")
+                        GameMode.VS_HUMAN -> navController.navigate("gameUI")
+                        GameMode.VS_AI -> navController.navigate("gameUI")
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -46,6 +54,19 @@ fun HomeUI(navController: NavController, viewModel: GameViewModel) {
             ) {
                 Text("Start Game")
             }
+
+            // Display game mode and difficulty label
+            val gameModeLabel = when (gameMode) {
+                GameMode.VS_AI -> "Vs AI : $difficulty"
+                GameMode.VS_HUMAN -> "Vs Human"
+                GameMode.MULTIPLAYER -> "Multiplayer"
+            }
+
+            Text(
+                text = gameModeLabel,
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.White // Ensure it's visible against the black background
+            )
 
             // Settings button
             Button(
@@ -57,7 +78,7 @@ fun HomeUI(navController: NavController, viewModel: GameViewModel) {
                     .padding(horizontal = 20.dp)
                     .height(60.dp)
             ) {
-                Text("Difficulty: $difficulty")
+                Text("Settings")
             }
 
             // PastGames button
@@ -75,3 +96,4 @@ fun HomeUI(navController: NavController, viewModel: GameViewModel) {
         }
     }
 }
+
