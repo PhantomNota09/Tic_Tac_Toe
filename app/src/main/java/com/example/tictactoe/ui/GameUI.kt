@@ -1,5 +1,6 @@
 package com.example.tictactoe.ui
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -36,14 +37,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import com.example.tictactoe.data.TicTacToeDbHelper
 import com.example.tictactoe.viewmodel.GameViewModel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
-fun GameUI(viewModel: GameViewModel, navController: NavController) {
+fun GameUI(viewModel: GameViewModel, navController: NavController, context: Context) {
     val gameBoard by viewModel.gameBoard.collectAsState()  // gameBoard state
     val currentPlayer by viewModel.currentPlayer.collectAsState()  // currentPlayer state
     val difficulty by viewModel.difficulty.collectAsState()  // difficulty state
     val gameOverInfo by viewModel.gameOver.collectAsState() // gameOver state
+    val dbHelper: TicTacToeDbHelper = TicTacToeDbHelper(context)
 
 
     Column(
@@ -56,17 +62,29 @@ fun GameUI(viewModel: GameViewModel, navController: NavController) {
     ) {
         gameOverInfo?.let {
             if (it.first) { // Game over
-                Dialog(onDismissRequest = {  }) {
+                Dialog(onDismissRequest = { }) {
                     Column(
                         modifier = Modifier.padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        val gameResultText = when (it.second) { // Check how the game ended
+                        val gameResultText = when (it.second) {
                             'X' -> "YOU WON!"
                             'O' -> "YOU LOST"
                             'D' -> "DRAW!"
                             else -> "GAME OVER"
                         }
+                        val currentDate =
+                            SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(
+                                Date()
+                            )
+                        val gameWinner = when (it.second) {
+                            'X' -> "Player\uD83D\uDE0E"
+                            'O' -> "Computer\uD83E\uDD16"
+                            'D' -> "DRAW!\uD83D\uDE35"
+                            else -> "GAME OVER"
+                        }
+
+                        dbHelper.insertGameResult(currentDate, gameWinner, difficulty.toString())
                         Text(
                             text = gameResultText,
                             fontSize = 48.sp,
@@ -77,7 +95,10 @@ fun GameUI(viewModel: GameViewModel, navController: NavController) {
                         Button(onClick = { viewModel.resetGame() }) {
                             Text("Restart Game")
                         }
-                        Button(onClick = { navController.popBackStack() }) {
+                        Button(onClick = {
+                            viewModel.resetGame()
+                            navController.popBackStack()
+                        }) {
                             Text("Back to Menu")
                         }
                     }
