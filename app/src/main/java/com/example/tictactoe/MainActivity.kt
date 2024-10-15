@@ -146,7 +146,7 @@ fun MainApp(
             GameUI(gameViewModel, navController, context)
         }
         composable("multiplayerUI") {
-            MultiplayerGameUI(viewModelBluetooth, navController = navController)
+            MultiplayerGameUI(viewModelBluetooth, navController = navController, context)
         }
         composable("bluetoothUI") {
             when {
