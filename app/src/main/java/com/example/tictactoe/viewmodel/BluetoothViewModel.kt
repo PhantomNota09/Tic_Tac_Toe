@@ -32,16 +32,14 @@ class BluetoothViewModel @Inject constructor(
     private var isFirst = false
     val _state = MutableStateFlow(BluetoothUiState())
     val state = combine(
-        bluetoothController.scannedDevices,
-        bluetoothController.pairedDevices,
-        _state  // This is assuming _state already includes gameState and metadata updated elsewhere
+        bluetoothController.scannedDevices, bluetoothController.pairedDevices, _state
     ) { scannedDevices, pairedDevices, currentState ->
         currentState.copy(
             scannedDevices = scannedDevices,
             pairedDevices = pairedDevices,
             messages = if (currentState.isConnected) currentState.messages else emptyList(),
-            gameState = currentState.gameState,  // Assuming gameState is updated elsewhere in your state flow
-            metadata = currentState.metadata  // Assuming metadata is updated elsewhere in your state flow
+            gameState = currentState.gameState,
+            metadata = currentState.metadata
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), _state.value)
 
@@ -82,21 +80,16 @@ class BluetoothViewModel @Inject constructor(
         shouldNav = false
         _state.update { currentState ->
             currentState.copy(
-                isConnecting = false,
-                isConnected = false,
-                gameState = GameState(
+                isConnecting = false, isConnected = false, gameState = GameState(
                     board = listOf(
-                        listOf(" ", " ", " "),
-                        listOf(" ", " ", " "),
-                        listOf(" ", " ", " ")
+                        listOf(" ", " ", " "), listOf(" ", " ", " "), listOf(" ", " ", " ")
                     ),
                     turn = "",
                     winner = "",
                     draw = false,
                     connectionEstablished = false,
                     reset = false
-                ),
-                metadata = currentState.metadata.copy(
+                ), metadata = currentState.metadata.copy(
                     miniGame = MiniGame(player1Choice = "", player2Choice = "")
                 )
             )
@@ -109,18 +102,12 @@ class BluetoothViewModel @Inject constructor(
                 currentState.copy(
                     gameState = currentState.gameState.copy(
                         board = listOf(
-                            listOf(" ", " ", " "),
-                            listOf(" ", " ", " "),
-                            listOf(" ", " ", " ")
-                        ),
-                        reset = true,  // Set the reset flag to true
-                        winner = "",  // Clear the winner
-                        draw = false  // Clear the draw state
+                            listOf(" ", " ", " "), listOf(" ", " ", " "), listOf(" ", " ", " ")
+                        ), reset = true, winner = "", draw = false
                     )
                 )
             }
 
-            // Send the updated game state to the other player via Bluetooth
             val updatedState = _state.value
             sendMessage(GameData(updatedState.gameState, updatedState.metadata))
         }
@@ -133,7 +120,6 @@ class BluetoothViewModel @Inject constructor(
 
     fun sendMessage(gameData: GameData, localDev: String = "") {
         viewModelScope.launch {
-            // Assuming bluetoothController.trySendMessage now requires a GameData object and handles the BluetoothMessage creation
             val bluetoothMessage = bluetoothController.trySendMessage(gameData, localDev)
             if (bluetoothMessage != null) {
                 _state.update { currentState ->
@@ -213,28 +199,23 @@ class BluetoothViewModel @Inject constructor(
 //            Log.d("BluetoothViewModel", "localDev: $localDev")
             val updatedMiniGame = when {
                 choice == "Me" -> {
-                    isFirst = true // This device is connecting, so it is Player 2
-                    // If player1Choice is "Me", update both player1Choice and player2Choice with localDev
+                    isFirst = true
                     miniGame.copy(
-                        player1Choice = localDev,
-                        player2Choice = localDev
+                        player1Choice = localDev, player2Choice = localDev
                     )
                 }
 
                 else -> {
-                    // If both player1Choice and player2Choice are filled, keep them as is
                     miniGame
                 }
             }
 
-            // Update the state with the new miniGame and set the turn to "0"
             _state.update { currentState ->
                 currentState.copy(
                     metadata = currentMetadata.copy(
                         miniGame = updatedMiniGame
-                    ),
-                    gameState = currentGameState.copy(
-                        turn = "0"  // Set the turn to "0"
+                    ), gameState = currentGameState.copy(
+                        turn = "0"
                     )
                 )
             }
@@ -249,7 +230,6 @@ class BluetoothViewModel @Inject constructor(
     fun makeMove(row: Int, col: Int) {
         viewModelScope.launch {
             val gameState = _state.value.gameState
-            // Check if the cell is empty, no winner yet, and the move is allowed based on turn and isFirst
             if (gameState.board[row][col] == " " && gameState.winner.isEmpty() && isMoveAllowed(
                     gameState.turn.toInt()
                 )
@@ -260,7 +240,6 @@ class BluetoothViewModel @Inject constructor(
                     else list
                 }
 
-                // Update the board and increment the turn
                 _state.update { currentState ->
                     currentState.copy(
                         gameState = currentState.gameState.copy(
@@ -270,12 +249,10 @@ class BluetoothViewModel @Inject constructor(
                     )
                 }
 
-                // Post move updates (check for winner or draw)
                 postMoveUpdate(newBoard)
             } else {
                 Log.d(
-                    "BluetoothViewModel",
-                    "Invalid move: $row, $col : ${gameState.turn} : $isFirst"
+                    "BluetoothViewModel", "Invalid move: $row, $col : ${gameState.turn} : $isFirst"
                 )
             }
         }
@@ -287,7 +264,6 @@ class BluetoothViewModel @Inject constructor(
         val updatedWinner = when {
             winner == "X" && isFirst -> {
                 localDev
-                    ?: "Player 1"  // Set winner to localDev if X wins and isFirst is true (Player 1)
             }
 
             winner == "X" && !isFirst -> {
@@ -297,16 +273,14 @@ class BluetoothViewModel @Inject constructor(
 
             winner == "O" && !isFirst -> {
                 localDev
-                    ?: "Player 2"  // Set winner to localDev if O wins and isFirst is false (Player 2)
             }
 
             winner == "O" && isFirst -> {
-                _state.value.metadata.choices.find { it.id == "player1" }?.name
-                    ?: "Player 1" // Player 1 wins if O wins and isFirst is true
+                _state.value.metadata.choices.find { it.id == "player1" }?.name ?: "Player 1"
             }
 
             else -> {
-                ""  // No winner, it may be a draw or game is still in progress
+                ""
             }
         }
 
@@ -321,8 +295,7 @@ class BluetoothViewModel @Inject constructor(
             _state.update { currentState ->
                 currentState.copy(
                     gameState = currentState.gameState.copy(
-                        draw = true,
-                        winner = "Draw"
+                        draw = true, winner = "Draw"
                     )
                 )
             }
@@ -356,7 +329,7 @@ class BluetoothViewModel @Inject constructor(
             return board[0][2]
         }
 
-        // Check for draw (all cells are filled)
+        // Check for draw
         val isDraw = board.all { row -> row.all { cell -> cell != " " } }
         if (isDraw) {
             return "Draw"
@@ -366,7 +339,6 @@ class BluetoothViewModel @Inject constructor(
     }
 
     private fun isDraw(board: List<List<String>>): Boolean {
-        // Check if all cells are filled and there is no winner
         return board.all { row -> row.all { cell -> cell != " " } }
     }
 
@@ -392,13 +364,11 @@ class BluetoothViewModel @Inject constructor(
 //        }
 //    }
 
-    // Check if it's allowed to make a move based on isFirst and current turn
+    // check if move is allowed to handle unwarranted clicks
     private fun isMoveAllowed(currentTurn: Int): Boolean {
         return if (isFirst) {
-            // If isFirst is true (Player 1), allow moves only on even turns
             currentTurn % 2 == 0
         } else {
-            // If isFirst is false (Player 2), allow moves only on odd turns
             currentTurn % 2 != 0
         }
     }

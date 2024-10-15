@@ -30,8 +30,8 @@ fun SettingsPage(
     navController: NavController,
     returnDestination: String,
 ) {
-    val selectedDifficulty by viewModel.difficulty.collectAsState()  // This assumes 'difficulty' is a StateFlow
-    val selectedGameMode by viewModel.gameMode.collectAsState()  // This assumes 'gameMode' is a StateFlow
+    val selectedDifficulty by viewModel.difficulty.collectAsState()
+    val selectedGameMode by viewModel.gameMode.collectAsState()
     val difficulties = DifficultyLevel.values()
     val gameModes = GameMode.values()
 

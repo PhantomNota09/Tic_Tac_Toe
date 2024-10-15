@@ -31,7 +31,7 @@ fun MultiplayerUI(
     navController: NavController,
 ) {
     val state = viewModel.state.collectAsState().value
-    var isOpponentSelected by remember { mutableStateOf(false) } // Local state to track if "Opponent" button was clicked
+    var isOpponentSelected by remember { mutableStateOf(false) }
 
     if (viewModel.shouldNavigateToGame()) {
         navController.navigate("multiplayerUI")
@@ -74,7 +74,7 @@ fun MultiplayerUI(
                 Button(
                     onClick = {
                         viewModel.setPlayerChoice("Opponent")
-                        isOpponentSelected = true // Set the state when "Opponent" is selected
+                        isOpponentSelected = true
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
@@ -84,7 +84,6 @@ fun MultiplayerUI(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Display "Waiting for other player to select..." when "Opponent" button is clicked
                 if (isOpponentSelected) {
                     Text(
                         text = "Waiting for other player to select...",
@@ -100,7 +99,7 @@ fun MultiplayerUI(
                 Button(
                     onClick = {
                         viewModel.disconnectFromDevice()
-                        navController.popBackStack() // Optionally navigate back
+                        navController.popBackStack()
                     },
                     modifier = Modifier,
                     colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.error)
@@ -112,7 +111,7 @@ fun MultiplayerUI(
     )
 }
 
-// Extension function to determine if navigation should occur
+
 fun BluetoothViewModel.shouldNavigateToGame(): Boolean {
     val game = state.value.metadata.miniGame
     if (game.player1Choice.isNotEmpty() && game.player2Choice.isNotEmpty() && !shouldNav) {

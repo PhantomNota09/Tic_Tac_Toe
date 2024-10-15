@@ -35,7 +35,7 @@ fun HomeUI(navController: NavController, viewModel: GameViewModel) {
         Column(
             modifier = Modifier.align(Alignment.Center),
             verticalArrangement = Arrangement.spacedBy(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally // Center the content horizontally
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Button to start game based on gameMode
             Button(
