@@ -7,15 +7,6 @@ import com.example.tictactoe.domain.game.Metadata
 import com.example.tictactoe.domain.game.MiniGame
 import kotlinx.serialization.Serializable
 
-//data class BluetoothUiState(
-//    val scannedDevices: List<BluetoothDevice> = emptyList(),
-//    val pairedDevices: List<BluetoothDevice> = emptyList(),
-//    val isConnected: Boolean = false,
-//    val isConnecting: Boolean = false,
-//    val errorMessage: String? = null,
-//    val messages: List<BluetoothMessage> = emptyList()
-//)
-
 @Serializable
 data class BluetoothUiState(
     val scannedDevices: List<BluetoothDevice> = emptyList(),

@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class GameViewModel : ViewModel() {
-    private val _difficulty = MutableStateFlow(DifficultyLevel.EASY) // Set default difficulty as enum
+    private val _difficulty = MutableStateFlow(DifficultyLevel.EASY) // Set default difficulty
     val difficulty = _difficulty.asStateFlow()
 
     private val _gameMode = MutableStateFlow(GameMode.VS_HUMAN) // Default game mode
