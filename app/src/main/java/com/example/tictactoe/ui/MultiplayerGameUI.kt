@@ -36,16 +36,12 @@ import com.example.tictactoe.viewmodel.BluetoothViewModel
 fun MultiplayerGameUI(viewModel: BluetoothViewModel, navController: NavController) {
     val state = viewModel.state.collectAsState().value.gameState
 
-    // Observe the game state for changes and trigger dialogs
     if (state.winner.isNotEmpty() || state.draw) {
         val result = when {
             state.draw -> "DRAW!"
-//            state.winner == "X" -> "${state.winner} WINS!"
-//            state.winner == "O" -> "${state.winner} WINS!"
             else -> "${state.winner} WINS!"
         }
 
-        // This dialog shows up when there is a winner or a draw
         AlertDialog(
             onDismissRequest = {
                 viewModel.disconnectFromDevice()
@@ -80,7 +76,6 @@ fun MultiplayerGameUI(viewModel: BluetoothViewModel, navController: NavControlle
             .padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Navigation icons at the top
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -97,10 +92,9 @@ fun MultiplayerGameUI(viewModel: BluetoothViewModel, navController: NavControlle
             }
 
 
-            // Reset board button on the top right
             IconButton(
                 onClick = {
-                    viewModel.resetBoard()  // Call the resetBoard function in your ViewModel
+                    viewModel.resetBoard()
                 }
             ) {
                 Icon(Icons.Filled.Refresh, "Reset", tint = Color.White)
