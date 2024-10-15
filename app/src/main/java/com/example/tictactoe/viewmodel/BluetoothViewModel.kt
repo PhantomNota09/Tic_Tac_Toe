@@ -29,6 +29,7 @@ class BluetoothViewModel @Inject constructor(
 ) : ViewModel() {
     private var localDev = bluetoothController.localDeviceName ?: ""
     var shouldNav = false
+    var isDbUpdate = true
     private var isFirst = false
     val _state = MutableStateFlow(BluetoothUiState())
     val state = combine(
@@ -65,11 +66,13 @@ class BluetoothViewModel @Inject constructor(
     }
 
     fun connectToDevice(device: BluetoothDeviceDomain) {
+        isDbUpdate = true
         _state.update { it.copy(isConnecting = true) }
         deviceConnectionJob = bluetoothController.connectToDevice(device).listen()
     }
 
     fun disconnectFromDevice() {
+        isDbUpdate = true
         deviceConnectionJob?.cancel()
         bluetoothController.closeConnection()
 //        _state.update {
@@ -97,6 +100,7 @@ class BluetoothViewModel @Inject constructor(
     }
 
     fun resetBoard() {
+        isDbUpdate = true
         viewModelScope.launch {
             _state.update { currentState ->
                 currentState.copy(
@@ -184,6 +188,7 @@ class BluetoothViewModel @Inject constructor(
 
 
     override fun onCleared() {
+        resetBoard()
         super.onCleared()
         bluetoothController.release()
     }
@@ -292,6 +297,7 @@ class BluetoothViewModel @Inject constructor(
         }
         // Check for draw
         else if (isDraw(board)) {
+            isDbUpdate = true
             _state.update { currentState ->
                 currentState.copy(
                     gameState = currentState.gameState.copy(
@@ -300,9 +306,10 @@ class BluetoothViewModel @Inject constructor(
                 )
             }
         }
-
+        isDbUpdate = false
         // Send updated game state over Bluetooth
         sendMessage(GameData(_state.value.gameState, _state.value.metadata))
+        isDbUpdate = true
     }
 
 
@@ -310,6 +317,7 @@ class BluetoothViewModel @Inject constructor(
         // Check rows for winner
         for (i in 0 until 3) {
             if (board[i][0] != " " && board[i][0] == board[i][1] && board[i][1] == board[i][2]) {
+                isDbUpdate = true
                 return board[i][0]
             }
         }
@@ -317,21 +325,25 @@ class BluetoothViewModel @Inject constructor(
         // Check columns for winner
         for (i in 0 until 3) {
             if (board[0][i] != " " && board[0][i] == board[1][i] && board[1][i] == board[2][i]) {
+                isDbUpdate = true
                 return board[0][i]
             }
         }
 
         // Check diagonals for winner
         if (board[0][0] != " " && board[0][0] == board[1][1] && board[1][1] == board[2][2]) {
+            isDbUpdate = true
             return board[0][0]
         }
         if (board[0][2] != " " && board[0][2] == board[1][1] && board[1][1] == board[2][0]) {
+            isDbUpdate = true
             return board[0][2]
         }
 
         // Check for draw
         val isDraw = board.all { row -> row.all { cell -> cell != " " } }
         if (isDraw) {
+            isDbUpdate = true
             return "Draw"
         }
 

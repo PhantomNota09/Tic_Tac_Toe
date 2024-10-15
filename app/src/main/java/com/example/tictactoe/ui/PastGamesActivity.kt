@@ -43,7 +43,7 @@ fun HeaderRow() {
     ) {
         Text("Date", modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.inversePrimary)
         Text("Winner", modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.inversePrimary)
-        Text("Difficulty", modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.inversePrimary)
+        Text("Mode", modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.inversePrimary)
     }
 }
 

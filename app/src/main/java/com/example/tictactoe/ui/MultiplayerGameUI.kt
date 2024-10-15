@@ -1,6 +1,8 @@
 package com.example.tictactoe.ui
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -29,19 +31,32 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.tictactoe.data.TicTacToeDbHelper
 import com.example.tictactoe.viewmodel.BluetoothViewModel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
-fun MultiplayerGameUI(viewModel: BluetoothViewModel, navController: NavController) {
+fun MultiplayerGameUI(viewModel: BluetoothViewModel, navController: NavController, context: Context) {
     val state = viewModel.state.collectAsState().value.gameState
-
+    val dbHelper: TicTacToeDbHelper = TicTacToeDbHelper(context)
+    var isUpdate = viewModel.isDbUpdate
     if (state.winner.isNotEmpty() || state.draw) {
         val result = when {
             state.draw -> "DRAW!"
             else -> "${state.winner} WINS!"
         }
-
+        val currentDate =
+            SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
+                Date()
+            )
+        Log.d("Log", "check $isUpdate")
+        if (isUpdate) {
+            dbHelper.insertGameResult(currentDate, state.winner, "MultiPlayer")
+            isUpdate = false
+        }
         AlertDialog(
             onDismissRequest = {
                 viewModel.disconnectFromDevice()
@@ -53,6 +68,7 @@ fun MultiplayerGameUI(viewModel: BluetoothViewModel, navController: NavControlle
                 Button(
                     onClick = {
                         viewModel.resetBoard()
+                        isUpdate = false
                     }
                 ) {
                     Text("Play Again")
@@ -62,6 +78,7 @@ fun MultiplayerGameUI(viewModel: BluetoothViewModel, navController: NavControlle
                 Button(onClick = {
                     viewModel.disconnectFromDevice()
                     navController.navigate("homeUI")
+                    isUpdate = false
                 }) {
                     Text("Exit")
                 }
@@ -95,6 +112,7 @@ fun MultiplayerGameUI(viewModel: BluetoothViewModel, navController: NavControlle
             IconButton(
                 onClick = {
                     viewModel.resetBoard()
+                    isUpdate = false
                 }
             ) {
                 Icon(Icons.Filled.Refresh, "Reset", tint = Color.White)

@@ -14,7 +14,7 @@ class TicTacToeDbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_N
         private const val COLUMN_ID = "id"
         private const val COLUMN_DATE = "date"
         private const val COLUMN_WINNER = "winner"
-        private const val COLUMN_DIFFICULTY = "difficulty"
+        private const val COLUMN_MODE = "mode"
     }
 
     override fun onCreate(db: SQLiteDatabase) {
@@ -23,7 +23,7 @@ class TicTacToeDbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_N
                 $COLUMN_ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 $COLUMN_DATE TEXT,
                 $COLUMN_WINNER TEXT,
-                $COLUMN_DIFFICULTY TEXT
+                $COLUMN_MODE TEXT
             )
         """.trimIndent()
         db.execSQL(createTableQuery)
@@ -34,12 +34,12 @@ class TicTacToeDbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_N
         onCreate(db)
     }
 
-    fun insertGameResult(date: String, winner: String, difficulty: String) {
+    fun insertGameResult(date: String, winner: String, mode: String) {
         val db = this.writableDatabase
         val values = ContentValues().apply {
             put(COLUMN_DATE, date)
             put(COLUMN_WINNER, winner)
-            put(COLUMN_DIFFICULTY, difficulty)
+            put(COLUMN_MODE, mode)
         }
         db.insert(TABLE_NAME, null, values)
         db.close()
@@ -54,7 +54,7 @@ class TicTacToeDbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_N
         while (cursor.moveToNext()) {
             val date = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DATE))
             val winner = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_WINNER))
-            val difficulty = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DIFFICULTY))
+            val difficulty = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_MODE))
             gameResults.add(GameResult(date, winner, difficulty))
         }
 

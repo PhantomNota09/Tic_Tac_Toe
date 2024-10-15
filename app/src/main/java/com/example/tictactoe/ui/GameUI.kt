@@ -66,6 +66,10 @@ fun GameUI(viewModel: GameViewModel, navController: NavController, context: Cont
                         modifier = Modifier.padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
+                        val currentDate =
+                            SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
+                                Date()
+                            )
                         // Display appropriate message based on game mode
                         val gameResultText = if (gameMode == GameMode.VS_HUMAN) {
                             when (it.second) {  // Check who won or if it's a draw
@@ -82,18 +86,26 @@ fun GameUI(viewModel: GameViewModel, navController: NavController, context: Cont
                                 else -> "Game Over"
                             }
                         }
-                        val currentDate =
-                            SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(
-                                Date()
-                            )
-                        val gameWinner = when (it.second) {
-                            'X' -> "Player\uD83D\uDE0E"
-                            'O' -> "Computer\uD83E\uDD16"
-                            'D' -> "DRAW!\uD83D\uDE35"
-                            else -> "GAME OVER"
+                        if (gameMode == GameMode.VS_AI) {
+                            val gameWinner = when (it.second) {
+                                'X' -> "Human\uD83D\uDE0E"
+                                'O' -> "Computer\uD83E\uDD16"
+                                'D' -> "DRAW!\uD83D\uDE35"
+                                else -> "GAME OVER"
+                            }
+
+                            dbHelper.insertGameResult(currentDate, gameWinner, "AI($difficulty)")
+                        } else { // Against Human
+                            val gameWinner = when (it.second) {
+                                'X' -> "X"
+                                'O' -> "O"
+                                'D' -> "DRAW!\uD83D\uDE35"
+                                else -> "GAME OVER"
+                            }
+
+                            dbHelper.insertGameResult(currentDate, gameWinner, "1 v 1")
                         }
 
-                        dbHelper.insertGameResult(currentDate, gameWinner, difficulty.toString())
                         Text(
                             text = gameResultText,
                             fontSize = 48.sp,
