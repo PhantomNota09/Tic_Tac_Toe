@@ -18,7 +18,9 @@ class AiPlayer {
                     getOptimalMove(boardState)
                 }
             }
-            DifficultyLevel.HARD -> getOptimalMove(boardState)
+            DifficultyLevel.HARD -> {
+                getOptimalMove(boardState)
+            }
         }
     }
 
@@ -39,14 +41,37 @@ class AiPlayer {
     }
 
     private fun getOptimalMove(boardState: Array<CharArray>): Pair<Int, Int>? {
+        val winningMove = findWinningMove(boardState, AI_MARKER)
+        if (winningMove != null) {
+            return winningMove
+        }
+
+        val blockingMove = findWinningMove(boardState, PLAYER_MARKER)
+        if (blockingMove != null) {
+            return blockingMove
+        }
+
         val bestMove = minimax(boardState, AI_MARKER, 0, Int.MIN_VALUE, Int.MAX_VALUE)
-        return if (bestMove.second != Pair(-1, -1)) bestMove.second else null // Ensure it returns null if no move is found
+        return if (bestMove.second != Pair(-1, -1)) bestMove.second else null
+    }
+
+    private fun findWinningMove(boardState: Array<CharArray>, marker: Char): Pair<Int, Int>? {
+        val emptySpaces = getLegalMoves(boardState)
+        for (move in emptySpaces) {
+            boardState[move.first][move.second] = marker
+            if (checkWinner(boardState) == marker) {
+                boardState[move.first][move.second] = Board.EMPTY
+                return move
+            }
+            boardState[move.first][move.second] = Board.EMPTY
+        }
+        return null
     }
 
     private fun minimax(boardState: Array<CharArray>, marker: Char, depth: Int, alpha: Int, beta: Int): Pair<Int, Pair<Int, Int>> {
         val boardStateValue = evaluateBoard(boardState)
         if (boardStateValue != 0 || isBoardFull(boardState)) {
-            return Pair(boardStateValue, Pair(-1, -1)) // Return score and invalid move
+            return Pair(boardStateValue, Pair(-1, -1))
         }
 
         var bestMove = Pair(-1, -1)
@@ -56,7 +81,7 @@ class AiPlayer {
         var newBeta = beta
 
         for (move in emptySpaces) {
-            boardState[move.first][move.second] = marker // Make the move
+            boardState[move.first][move.second] = marker
             val score = minimax(boardState, if (marker == AI_MARKER) PLAYER_MARKER else AI_MARKER, depth + 1, newAlpha, newBeta).first
 
             // Undo move
